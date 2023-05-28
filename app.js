@@ -28,6 +28,10 @@ app.use(cookieParser(process.env.JWT_SECRET))
 // controllers
 app.use('/api/v1/auth', authRoutes)
 
+app.route('/test', (req, res) => {
+  res.send('working')
+})
+
 // error handlers
 app.use(notFound)
 app.use(errorHandler)

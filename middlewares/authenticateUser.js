@@ -29,3 +29,5 @@ const authenticateUser = async (req, res, next) => {
     throw new CustomError.UnauthenticatedError('Authentication Invalid')
   }
 }
+
+module.exports = authenticateUser

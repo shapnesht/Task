@@ -7,35 +7,37 @@ const createJWT = ({ payload }) => {
 
 const isTokenValid = (token) => jwt.verify(token, process.env.JWT_SECRET)
 
-const attachCookiesToResponse = ({ res, refreshToken, user }) => {
-  const accessTokenJWT = createJWT({ payload: { user } })
-  const refreshTokenJWT = createJWT({ payload: { user, refreshToken } })
+const attachCookiesToResponse = ({ res, refreshToken, userId }) => {
+  const accessTokenJWT = createJWT({ payload: { userId } })
+  const refreshTokenJWT = createJWT({
+    payload: { userId, refreshToken },
+  })
 
   const fifteenMins = 1000 * 60 * 15
   const oneDay = 1000 * 60 * 60 * 24
 
   res.cookie('accessToken', accessTokenJWT, {
     signed: true,
-    expies: new Date(Date.now() + fifteenMins),
+    expires: new Date(Date.now() + fifteenMins),
     httpOnly: true,
   })
 
   res.cookie('refreshToken', refreshTokenJWT, {
-    signed: true,
-    expies: new Date(Date.now() + oneDay),
     httpOnly: true,
+    signed: true,
+    expires: new Date(Date.now() + oneDay),
   })
 }
 const removeCookies = (res) => {
   res.cookie('accessToken', 'logout', {
     signed: true,
-    expies: new Date(Date.now()),
+    expires: new Date(Date.now()),
     httpOnly: true,
   })
 
   res.cookie('refreshToken', 'logout', {
     signed: true,
-    expies: new Date(Date.now()),
+    expires: new Date(Date.now()),
     httpOnly: true,
   })
 }

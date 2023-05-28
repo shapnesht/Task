@@ -29,7 +29,7 @@ const register = async (req, res) => {
   let refreshToken = crypto.randomBytes(60).toString('hex')
 
   await Token.create({ refreshToken, user: user._id })
-  attachCookiesToResponse({ res, refreshToken, tokenUser })
+  attachCookiesToResponse({ res, refreshToken, userId: user._id })
 
   res.status(StatusCodes.CREATED).json({ user: tokenUser })
 }
@@ -48,6 +48,7 @@ const login = async (req, res) => {
   const isPasswordCorrect = await user.comparePasswords(password)
 
   if (!isPasswordCorrect) {
+    // console.log('incorrect password')
     throw new CustomApiError.UnauthenticatedError('Invalid Credentials')
   }
 
@@ -60,32 +61,33 @@ const login = async (req, res) => {
   if (existingToken) {
     const { isValid } = existingToken
     if (!isValid) {
+      // console.log('token is invalid')
       throw new CustomApiError.UnauthenticatedError('Invalid Credentials')
     }
     refreshToken = existingToken.refreshToken
-    attachCookiesToResponse({ res, user: tokenUser, refreshToken })
+    attachCookiesToResponse({ res, userId: user._id, refreshToken })
     res.status(StatusCodes.OK).json({ user: tokenUser })
     return
   }
 
-  refreshToken = await crypto.randomBytes(10).toString('hex')
+  refreshToken = crypto.randomBytes(10).toString('hex')
 
   await Token.create({ refreshToken, user: user._id })
-  attachCookiesToResponse({ res, refreshToken, tokenUser })
+  attachCookiesToResponse({ res, refreshToken, userId: user._id })
 
   res.status(200).json({ user: tokenUser })
 }
 
 const logout = async (req, res) => {
-  await Token.findOneAndDelete({ user: req.user.userId })
+  await Token.findOneAndDelete({ user: req.user })
 
   removeCookies(res)
 
   res.status(StatusCodes.OK).json({ msg: 'user logged out!' })
 }
+
 const getUser = async (req, res) => {
   const user = await User.findOne({ user: req.user }).select('name email')
-
   res.status(StatusCodes.OK).json(user)
 }
 

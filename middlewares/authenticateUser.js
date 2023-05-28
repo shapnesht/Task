@@ -4,7 +4,7 @@ const { isTokenValid, attachCookiesToResponse } = require('../utils')
 
 const authenticateUser = async (req, res, next) => {
   console.log(req)
-  const { accessToken, refreshToken } = req.signedcookies
+  const { accessToken, refreshToken } = req.signedCookies
 
   try {
     if (accessToken) {
@@ -27,7 +27,7 @@ const authenticateUser = async (req, res, next) => {
     req.user = payload.user
     next()
   } catch (error) {
-    throw new CustomError.UnauthenticatedError('Authentication Invalid')
+    throw new CustomAPIError.UnauthenticatedError('Authentication Invalid')
   }
 }
 
